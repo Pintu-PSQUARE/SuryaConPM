@@ -38,11 +38,11 @@ import {
 import {useAppSelector} from '../../store/hooks';
 import TaskProgressBar from '../../component/TaskProgressBar';
 import {SvgXml} from 'react-native-svg';
-import {PulseIndicator} from 'react-native-indicators';
 import {loginArrow, logoSvg, logoSvgPrimary} from '../../svg';
 import NewDrag from '../../component/NewDrag';
 import {Shadow} from 'react-native-shadow-2';
 import useHapticFeedback from '../../hooks/useHapticFeedback';
+import PulseIndicator from '../../component/CustomPulseIndicator';
 const DATA = [
   {
     id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
@@ -450,8 +450,8 @@ function PMHomePage() {
         </TouchableWithoutFeedback>
       </Modal>
 
+      {/* __________________________________________________Top bar________________________________ */}
       <View style={{flex: 1, backgroundColor: color.white}}>
-        {/* __________________________________________________Top bar________________________________ */}
         <LinearGradient style={{}} direction={'Vertical'}>
           <View
             style={{
@@ -611,15 +611,6 @@ function PMHomePage() {
                           marginBottom: responsiveScreenHeight(0.2),
                         }}>
                         Tower A{index + 1}
-                      </Text>
-                      <Text
-                        style={{
-                          color: color.black60,
-                          fontSize: responsiveScreenFontSize(1.5),
-                          fontWeight: '400',
-                          fontFamily: font.NunitoRegular,
-                        }}>
-                        Completion: 15 August
                       </Text>
                     </View>
                     <View

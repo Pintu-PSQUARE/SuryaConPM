@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-indicators/src/components/pulse-indicator/index.js b/node_modules/react-native-indicators/src/components/pulse-indicator/index.js
+index 53bcf92..17d2469 100644
+--- a/node_modules/react-native-indicators/src/components/pulse-indicator/index.js
++++ b/node_modules/react-native-indicators/src/components/pulse-indicator/index.js
+@@ -51,7 +51,7 @@ export default class PulseIndicator extends PureComponent {
+     };
+ 
+     return (
+-      <Animated.View style={styles.layer} {...{ key: index }}>
++      <Animated.View key={index} style={styles.layer}>
+         <Animated.View style={pulseStyle} />
+       </Animated.View>
+     );

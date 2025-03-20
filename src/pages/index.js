@@ -30,7 +30,7 @@ import SEHomePage from './Home/SEHomePage.tsx';
 import StartChat from './Home/StartChat.tsx'; // ts done
 import TargetProgress from './Home/TargetProgress.tsx';
 import SplashPage from './SplashPage.tsx'; // ts done
-
+import ProjectSelection from './Home/ProjectSelection.tsx';
 export {
   AssetCart,
   ChatsPage,
@@ -64,4 +64,5 @@ export {
   StartChat,
   TargetProgress,
   UserProfile,
+  ProjectSelection,
 };

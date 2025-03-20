@@ -32,6 +32,7 @@ import {
   PMRequest,
   PMSubtaskReview,
   ProjectDetail,
+  ProjectSelection,
   ScheduleForm,
   SEHomePage,
   SplashPage,
@@ -105,6 +106,13 @@ function App(): React.JSX.Element {
             </>
           ) : (
             <>
+              <Stack.Screen
+                options={{
+                  headerShown: false,
+                }}
+                name={routes.PROJECT_SELECTION}
+                component={ProjectSelection}
+              />
               <Stack.Screen
                 options={{
                   headerShown: false,
