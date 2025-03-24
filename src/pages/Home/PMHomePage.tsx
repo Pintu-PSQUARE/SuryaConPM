@@ -34,6 +34,7 @@ import {
   NavigationProp,
   ParamListBase,
   useNavigation,
+  useRoute,
 } from '@react-navigation/native';
 import {useAppSelector} from '../../store/hooks';
 import TaskProgressBar from '../../component/TaskProgressBar';
@@ -43,6 +44,7 @@ import NewDrag from '../../component/NewDrag';
 import {Shadow} from 'react-native-shadow-2';
 import useHapticFeedback from '../../hooks/useHapticFeedback';
 import PulseIndicator from '../../component/CustomPulseIndicator';
+import { useGetProjectTowerByIdQuery } from '../../api/main/projectSlice';
 const DATA = [
   {
     id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
@@ -60,6 +62,10 @@ const DATA = [
 
 function PMHomePage() {
   const {triggerHaptic} = useHapticFeedback();
+  const route = useRoute();
+  const { projectId } = route.params as { projectId: string };
+  
+  const {data} = useGetProjectTowerByIdQuery({ projectId });
 
   const [dummyUser, setDummyUsers] = useState([
     {
@@ -108,6 +114,7 @@ function PMHomePage() {
   const halfScreenWidth = screenWidth / 5;
 
   const navigation: NavigationProp<ParamListBase> = useNavigation();
+  
   const {user} = useAppSelector(state => state.userStore);
   // useEffect(()=>{
   //   navigation.navigate(routes.CHATS)
@@ -574,7 +581,8 @@ function PMHomePage() {
               ref={flatList}
               initialScrollIndex={index}
               style={{overflow: 'hidden'}}
-              data={DATA}
+              data={data?.data || []}
+              keyExtractor={(item) => item._id.toString()}
               horizontal
               showsHorizontalScrollIndicator={false}
               pagingEnabled
@@ -582,7 +590,7 @@ function PMHomePage() {
               getItemLayout={getItemLayout}
               renderItem={({item, index}) => (
                 <Pressable
-                  onPress={() => navigation.navigate(routes.PROJECT_DETAIL)}
+                  onPress={() => navigation.navigate(routes.PROJECT_DETAIL,{projectId:item._id})}
                   style={{
                     height: '83%',
                     width: responsiveScreenWidth(95),
@@ -610,7 +618,7 @@ function PMHomePage() {
                           fontWeight: '400',
                           marginBottom: responsiveScreenHeight(0.2),
                         }}>
-                        Tower A{index + 1}
+                        {item?.towername}
                       </Text>
                     </View>
                     <View
@@ -623,7 +631,7 @@ function PMHomePage() {
                         radius={responsiveScreenWidth(6.5)}
                         color={color.secondary}
                         bgColor={color.gray2}
-                        percentage={a}
+                        percentage={item?.materialused}
                       />
                       <ProgressBar
                         radius={responsiveScreenWidth(6.5)}
@@ -645,30 +653,25 @@ function PMHomePage() {
                       flex: 1,
                       gap: responsiveScreenWidth(1),
                     }}>
-                    {[
-                      // Assuming data is an array of your progress items
-                      {title: '11th Floor', currentStep: 4, totalSteps: 8},
-                      {title: '11th Floor', currentStep: 4, totalSteps: 10},
-                      {title: '11th Floor', currentStep: 2, totalSteps: 8},
-                    ].map((item, index, array) => (
+                    {item?.tasks.map((item, index, array) => (
                       <View
-                        key={index}
+                        // key={item?._id}
                         style={{
                           flexBasis: array.length === 1 ? '100%' : '48%',
 
                           marginBottom: responsiveScreenHeight(1),
                         }}>
                         <TaskProgressBar
-                          title={item.title}
-                          currentStep={item.currentStep}
-                          totalSteps={item.totalSteps}
+                          title={item.name}
+                          currentStep={item.completed_subtasks_count}
+                          totalSteps={item.subtaskdetails_count}
                         />
                       </View>
                     ))}
                   </View>
                 </Pressable>
               )}
-              keyExtractor={item => item.id}
+              
             />
           </View>
         </View>
@@ -683,10 +686,10 @@ function PMHomePage() {
             top: responsiveScreenHeight(-0.5),
             marginBottom: responsiveScreenHeight(2),
           }}>
-          {DATA.map((elem, cIndex) => {
+          {data?.data.map((elem, cIndex) => {
             return (
               <TouchableOpacity
-                key={elem.id}
+                key={elem._id}
                 onPress={() => setIndex(cIndex)}
                 style={{
                   width: responsiveScreenWidth(2),

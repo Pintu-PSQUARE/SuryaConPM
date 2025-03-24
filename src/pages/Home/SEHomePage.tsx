@@ -51,7 +51,6 @@ import {useAppSelector} from '../../store/hooks';
 import TaskProgressBar from '../../component/TaskProgressBar';
 import DraggableComponent from '../../component/DraggableComponent';
 import Svg, {Defs, LinearGradient, Rect, Stop, SvgXml} from 'react-native-svg';
-import {PulseIndicator} from 'react-native-indicators';
 import {loginArrow, logoSvg, logoSvgPrimary} from '../../svg';
 import NewDrag from '../../component/NewDrag';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -60,6 +59,7 @@ import useHapticFeedback from '../../hooks/useHapticFeedback';
 import Slider from '@react-native-community/slider';
 import {Keyboard} from 'react-native';
 import SearchBar from '../../component/SearchBar';
+import PulseIndicator from '../../component/CustomPulseIndicator'
 
 const DATA = [
   {

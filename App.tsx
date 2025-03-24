@@ -48,6 +48,8 @@ import {useAppSelector} from './src/store/hooks';
 const Stack = createNativeStackNavigator();
 function App(): React.JSX.Element {
   const {isLogin, user} = useAppSelector(state => state.userStore);
+  console.log('user--------', user);
+  
   const {triggerHaptic} = useHapticFeedback();
   return (
     <SafeAreaView
@@ -59,7 +61,7 @@ function App(): React.JSX.Element {
             headerShown: false, // Hide header for a clean UI
             animation: 'slide_from_right', // Apply fade animation on navigation
           }}>
-          {isLogin ? (
+          {!isLogin ? (
             <>
               <Stack.Screen
                 options={{

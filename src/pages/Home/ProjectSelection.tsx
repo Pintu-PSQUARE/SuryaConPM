@@ -1,128 +1,88 @@
-import React, {useState} from 'react';
-import {FlatList, Image, Pressable, StyleSheet, Text, View} from 'react-native';
-import Animated, {useSharedValue, withTiming} from 'react-native-reanimated';
+import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import {
   responsiveScreenFontSize,
   responsiveScreenHeight,
   responsiveScreenWidth,
 } from 'react-native-responsive-dimensions';
-import {color, font, routes} from '../../config/Env';
-import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import { Shadow } from 'react-native-shadow-2';
+import { color, font, routes } from '../../config/Env';
+import { useAppSelector } from '../../store/hooks';
 import AuthWarper from '../Auth/AuthWarper';
-import {
-  NavigationProp,
-  ParamListBase,
-  useNavigation,
-} from '@react-navigation/native';
+import { useGetAllProjectsQuery } from '../../api/main/projectSlice';
 
 const ProjectSelection = () => {
   const navigation: NavigationProp<ParamListBase> = useNavigation();
-  const {user} = useAppSelector(state => state.userStore);
+  const { data } = useGetAllProjectsQuery({ status: 'Ongoing' });
+  const { user } = useAppSelector(state => state.userStore);
   console.log('user--------->', user);
-  // const dispatch = useAppDispatch();
-  const width = responsiveScreenWidth(90);
-  const sliderWidth = width * 0.5;
-  const [selected, setSelected] = useState('Ongoing');
-  const translateX = useSharedValue(selected === 'Ongoing' ? 0 : sliderWidth);
+  // const [state, setState] = useState('Ongoing');
+  const animatedLeft = useSharedValue(0);
+  const [isLeft, setIsLeft] = useState(true);
 
-  const handleToggle = (value: 'Ongoing' | 'Completed') => {
-    setSelected(value);
-    translateX.value = withTiming(value === 'Ongoing' ? 0 : sliderWidth, {
-      duration: 200,
-    });
+  const handleToggle = (direction: boolean) => {
+    if (isLeft !== direction) {
+      animatedLeft.value = withTiming(direction ? 0 : responsiveScreenWidth(47), {
+        duration: 300,
+      });
+      setIsLeft(direction);
+    }
   };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    left: animatedLeft.value,
+  }));
 
   return (
     <AuthWarper>
-      <View style={[styles.toggleContainer, {width}]}>
-        <Animated.View style={[styles.slider, {transform: [{translateX}]}]} />
-        <Pressable
-          onPress={() => handleToggle('Ongoing')}
-          style={styles.button}>
-          <Text
-            style={
-              selected === 'Ongoing' ? styles.activeText : styles.inactiveText
-            }>
-            Ongoing
-          </Text>
-          <View
-            style={[
-              styles.badge,
-              selected === 'Ongoing'
-                ? styles.activeBadge
-                : styles.inactiveBadge,
-            ]}>
-            <Text
-              style={
-                selected === 'Ongoing'
-                  ? styles.activeBadgeText
-                  : styles.inactiveBadgeText
-              }>
-              02
-            </Text>
-          </View>
-        </Pressable>
+      <View style={styles.container}>
+        <Shadow distance={2} startColor={color.black10} offset={[0, 0]}>
+          <View style={styles.toggleContainer}>
+            {/* Animated Sliding Background */}
+            <Animated.View style={[styles.animatedBackground, animatedStyle]} />
 
-        <Pressable
-          onPress={() => handleToggle('Completed')}
-          style={styles.button}>
-          <Text
-            style={
-              selected === 'Completed' ? styles.activeText : styles.inactiveText
-            }>
-            Completed
-          </Text>
-          <View
-            style={[
-              styles.badge,
-              selected === 'Completed'
-                ? styles.activeBadge
-                : styles.inactiveBadge,
-            ]}>
-            <Text
-              style={
-                selected === 'Completed'
-                  ? styles.activeBadgeText
-                  : styles.inactiveBadgeText
-              }>
-              01
-            </Text>
+            {/* Ongoing Button */}
+            <Pressable onPress={() => handleToggle(true)} style={styles.toggleButton}>
+              <Text style={[styles.toggleText, isLeft && styles.activeText]}>Ongoing</Text>
+              <View style={[styles.badge, isLeft ? styles.activeBadge : styles.inactiveBadge]}>
+                <Text style={[styles.badgeText, isLeft ? styles.activeBadgeText : styles.inactiveBadgeText]}>
+                  02
+                </Text>
+              </View>
+            </Pressable>
+
+            {/* Completed Button */}
+            <Pressable onPress={() => handleToggle(false)} style={styles.toggleButton}>
+              <Text style={[styles.toggleText, !isLeft && styles.activeText]}>Completed</Text>
+              <View style={[styles.badge, !isLeft ? styles.activeBadge : styles.inactiveBadge]}>
+                <Text style={[styles.badgeText, !isLeft ? styles.activeBadgeText : styles.inactiveBadgeText]}>
+                  01
+                </Text>
+              </View>
+            </Pressable>
           </View>
-        </Pressable>
+        </Shadow>
       </View>
 
+      {/* Site Selection Card */}
       <View style={styles.selectionCityCard}>
         <Text style={styles.cardHeading}>Which Site you want to see?</Text>
         <FlatList
-          data={[1, 1, 1, 1, 1, 1]}
+          data={data?.data || []}
           numColumns={2}
-          columnWrapperStyle={{
-            justifyContent: 'space-between',
-            paddingHorizontal: responsiveScreenWidth(3),
-          }}
-          renderItem={({item, index}) => {
-            return (
-              <Pressable
-                style={{
-                  flex: 1,
-                  marginVertical: responsiveScreenHeight(1),
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                onPress={() => navigation.navigate(routes.PM_HOMEPAGE)}>
-                <Image
-                  source={require('../../assests/image4.png')}
-                  style={{
-                    width: responsiveScreenWidth(38),
-                    height: responsiveScreenHeight(15),
-                    borderRadius: 10,
-                  }}
-                />
-                <Text style={{color: 'white', marginTop: 5}}>Site Name</Text>
-              </Pressable>
-            );
-          }}
-          keyExtractor={(item, index) => index.toString()}
+          columnWrapperStyle={styles.columnWrapper}
+          renderItem={({ item }) => (
+            <Pressable
+              style={styles.siteItem}
+              onPress={() => navigation.navigate(routes.PM_HOMEPAGE,{projectId: item?._id})}
+            >
+              <Image source={item?.photo} style={styles.siteImage} />
+              <Text style={styles.siteText}>{item?.name}</Text>
+            </Pressable>
+          )}
+          keyExtractor={(item) => item._id.toString()}
         />
       </View>
     </AuthWarper>
@@ -130,99 +90,97 @@ const ProjectSelection = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {alignItems: 'center'
+  },
   toggleContainer: {
+    borderRadius: 100,
     flexDirection: 'row',
-    // width: responsiveScreenWidth(90),
-    // height: responsiveScreenHeight(6),
-    paddingVertical: responsiveScreenHeight(1.2),
+    position: 'relative',
+    overflow: 'hidden',
     backgroundColor: color.white,
-    borderRadius: responsiveScreenWidth(10),
-    alignItems: 'center',
-    alignSelf: 'center',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 3},
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 6,
+    width: responsiveScreenWidth(94),
   },
-
-  slider: {
-    position: 'absolute',
+  animatedBackground: {
+   width: '50%',
+                    backgroundColor: color.primary,
+                    borderRadius: 100,
+                    position: 'absolute',
+                    height: '100%',
+                    top: 0,
+                   
+  },
+  toggleButton: {
     width: '50%',
-    // height: responsiveScreenHeight(5),
-    paddingVertical: responsiveScreenHeight(2.7),
-    backgroundColor: color.primary,
-    borderRadius: responsiveScreenWidth(10),
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-
-  button: {
-    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1,
-    gap: 10,
+    justifyContent: 'center',
+    paddingVertical: responsiveScreenHeight(1.3),
   },
-
+  toggleText: {
+    color: color.black87,
+    fontFamily: font.NunitoMedium,
+    fontSize: responsiveScreenFontSize(1.5),
+    marginRight: 5,
+  },
   activeText: {
-    color: 'white',
-    fontSize: responsiveScreenWidth(3),
-    fontFamily: font.NunitoBold,
+    color: color.white,
   },
-
-  inactiveText: {
-    color: '#7D7D7D',
-    fontSize: responsiveScreenWidth(3),
-    fontFamily: font.NunitoExtraBold,
-  },
-
   badge: {
-    width: responsiveScreenWidth(5),
-    height: responsiveScreenWidth(5),
-    borderRadius: responsiveScreenWidth(5) / 2,
-    justifyContent: 'center',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-
   activeBadge: {
-    backgroundColor: color.white,
+    backgroundColor: '#FFF',
   },
-
   inactiveBadge: {
-    backgroundColor: 'rgba(216, 214, 214, 0.5)',
+    backgroundColor: '#E0E0E0',
   },
-
+  badgeText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
   activeBadgeText: {
     color: color.primary,
-    fontWeight: 'bold',
-    fontSize: responsiveScreenWidth(3),
   },
-
   inactiveBadgeText: {
-    color: color.black60,
-    fontWeight: 'bold',
-    fontSize: responsiveScreenWidth(3),
+    color: '#757575',
   },
-
   selectionCityCard: {
     backgroundColor: color.primaryForTop,
     marginTop: responsiveScreenHeight(6),
     height: '83%',
     borderRadius: responsiveScreenWidth(5),
     marginHorizontal: responsiveScreenWidth(4.5),
+    paddingVertical: responsiveScreenHeight(2),
   },
-
   cardHeading: {
     alignSelf: 'center',
     fontSize: responsiveScreenFontSize(2),
     color: color.white,
     marginVertical: responsiveScreenWidth(2),
     fontFamily: font.NunitoBold,
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    paddingHorizontal: responsiveScreenWidth(3),
+  },
+  siteItem: {
+    flex: 1,
+    marginVertical: responsiveScreenHeight(1),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  siteImage: {
+    width: responsiveScreenWidth(38),
+    height: responsiveScreenHeight(15),
+    borderRadius: 10,
+  },
+  siteText: {
+    color: 'white',
+    marginTop: 5,
   },
 });
 

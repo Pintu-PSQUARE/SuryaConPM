@@ -40,6 +40,7 @@ import {
   NavigationProp,
   ParamListBase,
   useNavigation,
+  useRoute,
 } from '@react-navigation/native';
 import {Shadow} from 'react-native-shadow-2';
 import useHapticFeedback from '../../hooks/useHapticFeedback';
@@ -48,6 +49,10 @@ import SearchBar from '../../component/SearchBar';
 const ProjectDetail = () => {
   const {triggerHaptic} = useHapticFeedback();
   const flatList = useRef<FlatList>(null);
+  const route = useRoute();
+  const { projectId } = route.params as { projectId: string };
+  console.log('projectId', projectId);
+  
 
   const navigation: NavigationProp<ParamListBase> = useNavigation();
 

@@ -95,7 +95,7 @@ function LoginPage() {
               },
             ]}
             keyboardType="default"
-            maxLength={10}
+            // maxLength={10}
             returnKeyType="done"
             placeholder="Employee ID"
             value={user.employeeId}

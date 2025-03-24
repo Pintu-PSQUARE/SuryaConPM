@@ -1,80 +1,116 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { AsyncThunkConfig } from "@reduxjs/toolkit/dist/createAsyncThunk"
-import { apiUrl } from '../config/Env'
+import { apiUrl, TESTINGUR } from '../config/Env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-export interface CounterState {
+import Cookies from '@react-native-cookies/cookies';
+import { getCookiesString } from '../api/util';
+
+export interface AuthState {
   isLogin: boolean;
-  user: user | null
+  user: User | null;
 }
-export interface user {
+
+export interface User {
   _id: string;
   name: string;
   email: string;
   profile?: string;
-  role?: string
+  role?: string;
 }
 
-const initialState: CounterState = {
+const initialState: AuthState = {
   isLogin: false,
-  user: null
-}
+  user: null,
+};
 
-export const LoginById = createAsyncThunk<void, { employeeId: string, password: string }, AsyncThunkConfig>(
+// Utility function to get session cookies
+const getSessionCookies = async () => {
+  try {
+    const cookies = await Cookies.get(TESTINGUR);
+    console.log('Session Cookies:', cookies);
+    return cookies;
+  } catch (error) {
+    console.error('Error fetching cookies:', error);
+    return null;
+  }
+};
+
+export const LoginById = createAsyncThunk<void, { employeeId: string; password: string }, AsyncThunkConfig>(
   'LoginById',
   async (requestData) => {
-    console.log("req------>", requestData)
     try {
-      const response = await fetch(`${apiUrl}/hrmaster/employee/loginEmployee`, {
+      const response = await fetch(`${TESTINGUR}/hrmaster/employee/loginEmployee`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Ensures cookies are included
         body: JSON.stringify(requestData),
       });
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
       const data = await response.json();
       if (!data.success) {
         throw new Error(`${data.message}`);
-
       }
+
+      // Fetch session cookies
+      const sessionCookies = await getSessionCookies();
+      if (sessionCookies) {
+        await AsyncStorage.setItem('sessionCookies', JSON.stringify(sessionCookies));
+      } else {
+        console.warn('Session cookies not found.');
+      }
+
       return data;
     } catch (error) {
-      const a = {
+      console.error('Login Error:', error);
+      return {
         success: false,
-        message: (error as { message: string }).message
-      }
-      return a;
+        message: (error as { message: string }).message,
+      };
     }
   }
 );
-export const TokenLogin = createAsyncThunk<void, { token: string }, AsyncThunkConfig>(
+export const TokenLogin = createAsyncThunk<void, void, AsyncThunkConfig>(
   'TokenLogin',
-  async (body) => {
+  async () => {
     try {
+      const storedCookies = await AsyncStorage.getItem('sessionCookies');
+      if (!storedCookies) {
+        throw new Error('No session cookies found');
+      }
+
+      const cookies = JSON.parse(storedCookies);
+
       const response = await fetch(`${apiUrl}/app/token`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          Cookie: cookies['connect.sid'], // Use stored session cookie
         },
-        body: JSON.stringify(body),
+        credentials: 'include',
       });
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
       const data = await response.json();
       if (!data.success) {
         throw new Error(`${data.message}`);
-
       }
+
       return data;
     } catch (error) {
-      const a = {
+      console.error('Auto-login Error:', error);
+      return {
         success: false,
-        message: (error as { message: string }).message
-      }
-      return a;
+        message: (error as { message: string }).message,
+      };
     }
   }
 );
@@ -224,48 +260,44 @@ export const ResetPassword = createAsyncThunk<void, { token: string, newPassword
   }
 );
 export const counterSlice = createSlice({
-  name: 'counter',
+  name: 'auth',
   initialState,
   reducers: {
     logout: (state) => {
-      state.isLogin = false
+      state.isLogin = false;
+      state.user = null;
+      AsyncStorage.removeItem('sessionCookies'); 
     },
     login: (state, { payload }) => {
-      state.user = { ...(payload as { management: user }).management, role: "user" }
-    }
+      state.user = { ...(payload as { management: User }).management, role: 'user' };
+    },
   },
-  extraReducers(builder) {
+  extraReducers: (builder) => {
     builder
       .addCase(LoginById.fulfilled, (state, { payload }) => {
         interface LoginPayload {
           success: boolean;
-          management: user;
-          token: string;
+          management: User;
         }
         const typedPayload = payload as unknown as LoginPayload;
         if (typedPayload?.success) {
-          state.isLogin = true
-          state.user = { ...(typedPayload as { management: user }).management, role: "user" }
-          storeData("token", (typedPayload as { token: string }).token)
-          const a = JSON.stringify((typedPayload as { management: user }).management)
-          storeData("user", a)
+          state.isLogin = true;
+          state.user = { ...(typedPayload as { management: User }).management, role: 'user' };
         }
       })
       .addCase(TokenLogin.fulfilled, (state, { payload }) => {
         interface LoginPayload {
           success: boolean;
-          management: user;
+          management: User;
         }
         const typedPayload = payload as unknown as LoginPayload;
         if (typedPayload?.success) {
-          state.isLogin = true
-          state.user = { ...(typedPayload as { management: user }).management, role: "user" }
-          const a = JSON.stringify((typedPayload as { management: user }).management)
-          storeData("user", a)
+          state.isLogin = true;
+          state.user = { ...(typedPayload as { management: User }).management, role: 'user' };
         }
-      })
+      });
   },
-})
+});
 export const storeData = async (key: string, value: string) => {
   try {
     await AsyncStorage.setItem(key, value);
