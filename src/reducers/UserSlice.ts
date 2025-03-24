@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { AsyncThunkConfig } from "@reduxjs/toolkit/dist/createAsyncThunk"
-import { apiUrl, TESTINGUR } from '../config/Env'
+import { apiUrl } from '../config/Env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Cookies from '@react-native-cookies/cookies';
 import { getCookiesString } from '../api/util';
@@ -26,7 +26,7 @@ const initialState: AuthState = {
 // Utility function to get session cookies
 const getSessionCookies = async () => {
   try {
-    const cookies = await Cookies.get(TESTINGUR);
+    const cookies = await Cookies.get(apiUrl);
     console.log('Session Cookies:', cookies);
     return cookies;
   } catch (error) {
@@ -39,7 +39,7 @@ export const LoginById = createAsyncThunk<void, { employeeId: string; password: 
   'LoginById',
   async (requestData) => {
     try {
-      const response = await fetch(`${TESTINGUR}/hrmaster/employee/loginEmployee`, {
+      const response = await fetch(`${apiUrl}/hrmaster/employee/loginEmployee`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

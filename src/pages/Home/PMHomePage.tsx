@@ -66,6 +66,8 @@ function PMHomePage() {
   const { projectId } = route.params as { projectId: string };
   
   const {data} = useGetProjectTowerByIdQuery({ projectId });
+  console.log(data);
+  
 
   const [dummyUser, setDummyUsers] = useState([
     {

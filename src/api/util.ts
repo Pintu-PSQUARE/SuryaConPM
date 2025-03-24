@@ -1,10 +1,10 @@
 import { createApi, fetchBaseQuery, FetchArgs, BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import Cookies from '@react-native-cookies/cookies';
-import { TESTINGUR } from '../config/Env';
+import { apiUrl } from '../config/Env';
 
 export const getCookiesString = async (): Promise<string> => {
   try {
-    const cookies = await Cookies.get(TESTINGUR);
+    const cookies = await Cookies.get(apiUrl);
     return Object.entries(cookies)
       .map(([key, value]) => `${key}=${value.value}`)
       .join('; ');
@@ -19,7 +19,7 @@ const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, unknown> = asy
   const cookieString = await getCookiesString();
 
   const baseQuery = fetchBaseQuery({
-    baseUrl: TESTINGUR,
+    baseUrl: apiUrl,
     prepareHeaders: (headers) => {
       if (cookieString) {
         headers.set('Cookie', cookieString);
