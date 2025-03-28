@@ -22,8 +22,8 @@ import {
 } from 'react-native-responsive-dimensions';
 import {color, font} from '../../../config/Env';
 // import {style} from '../Auth/ForgotPassword';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {GetContact} from '../../../reducers/ContactSlice';
+import {useAppDispatch, useAppSelector} from '../../../hooks/hooks';
+import {GetContact} from '../../../redux/slice/ContactSlice';
 // import {truncateText} from '../../../function';
 // import DocumentPicker from 'react-native-document-picker';
 // import Models from '../../component/Model';

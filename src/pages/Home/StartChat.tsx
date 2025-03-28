@@ -1,32 +1,31 @@
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
 import {
+  NavigationProp,
+  ParamListBase,
+  useRoute,
+} from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import {
+  Image,
   Pressable,
-  StyleSheet,
+  ScrollView,
   Text,
   TextInput,
-  View,
-  Image,
-  ScrollView,
+  View
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {Header} from '../../component';
 import {
   responsiveScreenFontSize,
   responsiveScreenHeight,
   responsiveScreenWidth,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
-import {color, font, routes} from '../../config/Env';
-import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {GetContact} from '../../reducers/ContactSlice';
-import {truncateText} from '../../../function';
-import {StartChats} from '../../reducers/ChatSlice';
-import {
-  NavigationProp,
-  ParamListBase,
-  useRoute,
-} from '@react-navigation/native';
+import { truncateText } from '../../../function';
+import { Header } from '../../component';
+import { color, font, routes } from '../../config/Env';
+import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
+import { StartChats } from '../../redux/slice/ChatSlice';
+import { GetContact } from '../../redux/slice/ContactSlice';
 interface StartChatProp {
   navigation: NavigationProp<ParamListBase>;
 }

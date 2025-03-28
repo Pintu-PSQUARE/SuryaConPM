@@ -4,8 +4,8 @@ import AuthWarper from './AuthWarper'
 import { responsiveScreenFontSize, responsiveScreenHeight, responsiveScreenWidth } from 'react-native-responsive-dimensions'
 import { color, routes } from '../../config/Env'
 import { NavigationProp, ParamListBase, useNavigation, useRoute } from '@react-navigation/native'
-import { useAppDispatch } from '../../store/hooks'
-import { ResetPassword } from '../../reducers/UserSlice'
+import { useAppDispatch } from '../../hooks/hooks'
+import { ResetPassword } from '../../redux/slice/UserSlice'
 import { style } from './ForgotPassword'
 
 const NewPassword = () => {

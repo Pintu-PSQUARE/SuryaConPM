@@ -5,8 +5,8 @@ import { responsiveScreenFontSize, responsiveScreenHeight, responsiveScreenWidth
 import FontAwesome from "react-native-vector-icons/FontAwesome"
 import AuthWarper from './AuthWarper'
 import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native'
-import { useAppDispatch } from '../../store/hooks'
-import { LoginWithNumber as LoginWithOtp } from '../../reducers/UserSlice'
+import { useAppDispatch } from '../../hooks/hooks'
+import { LoginWithNumber as LoginWithOtp } from './../../redux/slice/UserSlice'
 import { style } from './ForgotPassword'
 
 function LoginWithNumber() {
@@ -92,7 +92,7 @@ function LoginWithNumber() {
                             return
                         }
                     }
-                    dispatch(LoginWithOtp({ credential })).then((e) => {
+                    dispatch(LoginWithOtp({ id: credential })).then((e) => {
                         if (!e.payload.success) {
                             setError(e.payload.message)
                         }

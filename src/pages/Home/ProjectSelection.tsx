@@ -1,7 +1,15 @@
-import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
+import {
+  NavigationProp,
+  ParamListBase,
+  useNavigation,
+} from '@react-navigation/native';
 import React, { useState } from 'react';
 import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import {
   responsiveScreenFontSize,
   responsiveScreenHeight,
@@ -9,89 +17,114 @@ import {
 } from 'react-native-responsive-dimensions';
 import { Shadow } from 'react-native-shadow-2';
 import { color, font, routes } from '../../config/Env';
-import { useAppSelector } from '../../store/hooks';
+// import { useProject } from '../../hooks/apiHooks/useProject';
+import { useAppSelector } from '../../hooks/hooks';
 import AuthWarper from '../Auth/AuthWarper';
-import { useGetAllProjectsQuery } from '../../api/main/projectSlice';
 
 const ProjectSelection = () => {
   const navigation: NavigationProp<ParamListBase> = useNavigation();
-  const { data } = useGetAllProjectsQuery({ status: 'Ongoing' });
-  const { user } = useAppSelector(state => state.userStore);
-  console.log('user--------->', user);
-  // const [state, setState] = useState('Ongoing');
-  const animatedLeft = useSharedValue(0);
-  const [isLeft, setIsLeft] = useState(true);
+  
+  // Manage project status toggle
+  const [status, setStatus] = useState<'Ongoing' | 'Completed'>('Ongoing');
+  // const { projects, isProjectsLoading } = useProject(status);
 
-  const handleToggle = (direction: boolean) => {
-    if (isLeft !== direction) {
-      animatedLeft.value = withTiming(direction ? 0 : responsiveScreenWidth(47), {
-        duration: 300,
-      });
-      setIsLeft(direction);
+  const projects = useAppSelector((state) => state.projectStore.projects);
+  
+
+  const animatedLeft = useSharedValue(0);
+
+  const handleToggle = (newStatus: 'Ongoing' | 'Completed') => {
+    if (status !== newStatus) {
+      animatedLeft.value = withTiming(
+        newStatus === 'Ongoing' ? 0 : responsiveScreenWidth(47),
+        { duration: 300 }
+      );
+      setStatus(newStatus);
     }
   };
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    left: animatedLeft.value,
-  }));
+  const animatedStyle = useAnimatedStyle(() => ({ left: animatedLeft.value }));
 
   return (
     <AuthWarper>
       <View style={styles.container}>
         <Shadow distance={2} startColor={color.black10} offset={[0, 0]}>
           <View style={styles.toggleContainer}>
-            {/* Animated Sliding Background */}
             <Animated.View style={[styles.animatedBackground, animatedStyle]} />
-
-            {/* Ongoing Button */}
-            <Pressable onPress={() => handleToggle(true)} style={styles.toggleButton}>
-              <Text style={[styles.toggleText, isLeft && styles.activeText]}>Ongoing</Text>
-              <View style={[styles.badge, isLeft ? styles.activeBadge : styles.inactiveBadge]}>
-                <Text style={[styles.badgeText, isLeft ? styles.activeBadgeText : styles.inactiveBadgeText]}>
-                  02
+            <Pressable
+              onPress={() => handleToggle('Ongoing')}
+              style={styles.toggleButton}>
+              <Text style={[styles.toggleText, status === 'Ongoing' && styles.activeText]}>
+                Ongoing
+              </Text>
+              <View
+                style={[
+                  styles.badge,
+                  status === 'Ongoing' ? styles.activeBadge : styles.inactiveBadge,
+                ]}>
+                <Text
+                  style={[
+                    styles.badgeText,
+                    status === 'Ongoing' ? styles.activeBadgeText : styles.inactiveBadgeText,
+                  ]}>
+                  {projects?.length ?? 0}
                 </Text>
               </View>
             </Pressable>
-
-            {/* Completed Button */}
-            <Pressable onPress={() => handleToggle(false)} style={styles.toggleButton}>
-              <Text style={[styles.toggleText, !isLeft && styles.activeText]}>Completed</Text>
-              <View style={[styles.badge, !isLeft ? styles.activeBadge : styles.inactiveBadge]}>
-                <Text style={[styles.badgeText, !isLeft ? styles.activeBadgeText : styles.inactiveBadgeText]}>
-                  01
+            <Pressable
+              onPress={() => handleToggle('Completed')}
+              style={styles.toggleButton}>
+              <Text style={[styles.toggleText, status === 'Completed' && styles.activeText]}>
+                Completed
+              </Text>
+              <View
+                style={[
+                  styles.badge,
+                  status === 'Completed' ? styles.activeBadge : styles.inactiveBadge,
+                ]}>
+                <Text
+                  style={[
+                    styles.badgeText,
+                    status === 'Completed' ? styles.activeBadgeText : styles.inactiveBadgeText,
+                  ]}>
+                  {projects?.length ?? 0}
                 </Text>
               </View>
             </Pressable>
           </View>
         </Shadow>
       </View>
-
-      {/* Site Selection Card */}
       <View style={styles.selectionCityCard}>
         <Text style={styles.cardHeading}>Which Site you want to see?</Text>
-        <FlatList
-          data={data?.data || []}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
-          renderItem={({ item }) => (
-            <Pressable
-              style={styles.siteItem}
-              onPress={() => navigation.navigate(routes.PM_HOMEPAGE,{projectId: item?._id})}
-            >
-              <Image source={item?.photo} style={styles.siteImage} />
-              <Text style={styles.siteText}>{item?.name}</Text>
-            </Pressable>
-          )}
-          keyExtractor={(item) => item._id.toString()}
-        />
+        {false ? (
+          <Text style={styles.loadingText}>Loading...</Text>
+        ) : (
+          <FlatList
+            data={projects ?? []}
+            numColumns={2}
+            columnWrapperStyle={styles.columnWrapper}
+            renderItem={({ item }) => (
+              <Pressable
+                style={styles.siteItem}
+                onPress={() =>
+                  navigation.navigate(routes.PM_HOMEPAGE, {
+                    projectId: item?._id,
+                  })
+                }>
+                <Image source={item?.photo} style={styles.siteImage} />
+                <Text style={styles.siteText}>{item?.name}</Text>
+              </Pressable>
+            )}
+            keyExtractor={item => item._id.toString()}
+          />
+        )}
       </View>
     </AuthWarper>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {alignItems: 'center'
-  },
+  container: { alignItems: 'center' },
   toggleContainer: {
     borderRadius: 100,
     flexDirection: 'row',
@@ -101,13 +134,12 @@ const styles = StyleSheet.create({
     width: responsiveScreenWidth(94),
   },
   animatedBackground: {
-   width: '50%',
-                    backgroundColor: color.primary,
-                    borderRadius: 100,
-                    position: 'absolute',
-                    height: '100%',
-                    top: 0,
-                   
+    width: '50%',
+    backgroundColor: color.primary,
+    borderRadius: 100,
+    position: 'absolute',
+    height: '100%',
+    top: 0,
   },
   toggleButton: {
     width: '50%',
@@ -122,9 +154,7 @@ const styles = StyleSheet.create({
     fontSize: responsiveScreenFontSize(1.5),
     marginRight: 5,
   },
-  activeText: {
-    color: color.white,
-  },
+  activeText: { color: color.white },
   badge: {
     width: 20,
     height: 20,
@@ -132,22 +162,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activeBadge: {
-    backgroundColor: '#FFF',
-  },
-  inactiveBadge: {
-    backgroundColor: '#E0E0E0',
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  activeBadgeText: {
-    color: color.primary,
-  },
-  inactiveBadgeText: {
-    color: '#757575',
-  },
+  activeBadge: { backgroundColor: '#FFF' },
+  inactiveBadge: { backgroundColor: '#E0E0E0' },
+  badgeText: { fontSize: 12, fontWeight: 'bold' },
+  activeBadgeText: { color: color.primary },
+  inactiveBadgeText: { color: '#757575' },
   selectionCityCard: {
     backgroundColor: color.primaryForTop,
     marginTop: responsiveScreenHeight(6),
@@ -178,9 +197,11 @@ const styles = StyleSheet.create({
     height: responsiveScreenHeight(15),
     borderRadius: 10,
   },
-  siteText: {
+  siteText: { color: 'white', marginTop: 5 },
+  loadingText: {
+    alignSelf: 'center',
     color: 'white',
-    marginTop: 5,
+    fontSize: responsiveScreenFontSize(2),
   },
 });
 

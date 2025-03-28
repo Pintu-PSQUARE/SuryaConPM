@@ -1,6 +1,12 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {AsyncThunkConfig} from '@reduxjs/toolkit/dist/createAsyncThunk';
-import {apiUrl} from '../config/Env';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { apiUrl } from '../../config/Env';
+
+interface AsyncThunkConfig {
+  state: CounterState;
+  dispatch: any;
+  extra: any;
+  rejectValue: any;
+}
 
 export interface Member {
   user: User;

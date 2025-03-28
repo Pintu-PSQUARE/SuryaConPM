@@ -4,54 +4,49 @@
 /* eslint-disable quotes */
 /* eslint-disable react/self-closing-comp */
 /* eslint-disable react-native/no-inline-styles */
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  TextInput,
+  FlatList,
   Image,
   Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  FlatList,
+  ScrollView,
+  Text,
   TouchableOpacity,
+  View
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
-import {
-  BottomModal,
-  Header,
-  ProgressBar,
-  ProgressButton,
-} from '../../component';
 import {
   responsiveFontSize,
   responsiveScreenFontSize,
   responsiveScreenHeight,
   responsiveScreenWidth,
 } from 'react-native-responsive-dimensions';
-import {color, font, routes} from '../../config/Env';
+import {
+  BottomModal,
+  Header,
+  ProgressBar,
+  ProgressButton,
+} from '../../component';
+import { color, font, routes } from '../../config/Env';
 // import {style} from '../Auth/ForgotPassword';
-import {useAppDispatch, useAppSelector} from '../../store/hooks';
-import {GetContact} from '../../reducers/ContactSlice';
+import { useAppDispatch, useAppSelector } from '../../hooks/hooks';
+import { GetContact } from '../../redux/slice/ContactSlice';
 // import {truncateText} from '../../../function';
 // import DocumentPicker from 'react-native-document-picker';
 // import Models from '../../component/Model';
 import {
   NavigationProp,
   ParamListBase,
-  useNavigation,
-  useRoute,
+  useNavigation
 } from '@react-navigation/native';
-import {Shadow} from 'react-native-shadow-2';
-import useHapticFeedback from '../../hooks/useHapticFeedback';
+import { Shadow } from 'react-native-shadow-2';
 import SearchBar from '../../component/SearchBar';
+import useHapticFeedback from '../../hooks/useHapticFeedback';
 
 const ProjectDetail = () => {
   const {triggerHaptic} = useHapticFeedback();
   const flatList = useRef<FlatList>(null);
-  const route = useRoute();
-  const { projectId } = route.params as { projectId: string };
-  console.log('projectId', projectId);
+
+      const projectTowers = useAppSelector((state) => state.projectStore.projectTowerDetails);
   
 
   const navigation: NavigationProp<ParamListBase> = useNavigation();
@@ -76,7 +71,7 @@ const ProjectDetail = () => {
 
   const onScrollEnd = (event: any) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const newIndex = Math.round(contentOffsetX / responsiveScreenWidth(90)); // Calculate the new index based on scroll position
+    const newIndex = Math.round(contentOffsetX / responsiveScreenWidth(90)); 
     setIndex(newIndex);
   };
   const getItemLayout = () => {
@@ -125,7 +120,8 @@ const ProjectDetail = () => {
   useEffect(() => {
     dispatch(GetContact({}));
   }, []);
-
+  // console.log('towerDetails', towerDetails?.data[0]?.tasks);
+  
   return (
     <>
       {/* -----------------------Add labour modal-------------------------- */}
@@ -835,7 +831,7 @@ const ProjectDetail = () => {
             <ProgressButton
               color={color.secondary}
               bgColor={color.white}
-              percentage={68}
+              percentage={projectTowers[0]?.materialused ?? 0}
               title="Materials Used"
             />
           </Pressable>
@@ -844,7 +840,7 @@ const ProjectDetail = () => {
             <ProgressButton
               color={color.primary}
               bgColor={color.white}
-              percentage={41}
+              percentage={projectTowers?.targetprocessed ?? 0}
               title="Target Progress"
             />
           </Pressable>
@@ -856,7 +852,7 @@ const ProjectDetail = () => {
           ref={flatList}
           initialScrollIndex={index}
           style={{overflow: 'hidden'}}
-          data={DATA}
+          data={projectTowers?.tasks}
           horizontal
           showsHorizontalScrollIndicator={false}
           pagingEnabled
@@ -947,7 +943,7 @@ const ProjectDetail = () => {
                         radius={responsiveScreenWidth(6)}
                         color={color.secondary}
                         bgColor={color.gray2}
-                        percentage={78}
+                        percentage={item?.taskprogress}
                       />
                       <ProgressBar
                         radius={responsiveScreenWidth(6)}
@@ -993,7 +989,7 @@ const ProjectDetail = () => {
 
                   {/* -------------------------Sub tasks view---------------------- */}
 
-                  {subTasks.map(val => (
+                  {item?.subtaskdetails.map(val => (
                     <Pressable
                       onPress={() =>
                         navigation.navigate(routes.PMSUBTASK_REVIEW)
@@ -1019,7 +1015,7 @@ const ProjectDetail = () => {
                           <View
                             style={{
                               height: '100%',
-                              width: `${val.progress}%`,
+                              width: `${Math.ceil(val.subtaskprogress)}%`,
                               backgroundColor: color.gray3,
                               borderRadius: 10,
                             }}></View>
@@ -1030,7 +1026,7 @@ const ProjectDetail = () => {
                               fontSize: responsiveFontSize(1.8),
                               marginLeft: responsiveScreenWidth(2.5),
                             }}>
-                            {val.name}
+                            {"val.name"}
                           </Text>
                         </View>
                       </Shadow>
@@ -1065,7 +1061,7 @@ const ProjectDetail = () => {
             margin: 'auto',
             position: 'relative',
           }}>
-          {DATA.map((elem, cIndex) => {
+          {projectTowers?.tasks.map((elem, cIndex) => {
             return (
               <TouchableOpacity
                 key={elem.id}

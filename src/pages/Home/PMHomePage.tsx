@@ -36,7 +36,7 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import {useAppSelector} from '../../store/hooks';
+import {useAppSelector} from '../../hooks/hooks';
 import TaskProgressBar from '../../component/TaskProgressBar';
 import {SvgXml} from 'react-native-svg';
 import {loginArrow, logoSvg, logoSvgPrimary} from '../../svg';
@@ -44,7 +44,6 @@ import NewDrag from '../../component/NewDrag';
 import {Shadow} from 'react-native-shadow-2';
 import useHapticFeedback from '../../hooks/useHapticFeedback';
 import PulseIndicator from '../../component/CustomPulseIndicator';
-import { useGetProjectTowerByIdQuery } from '../../api/main/projectSlice';
 const DATA = [
   {
     id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
@@ -64,9 +63,12 @@ function PMHomePage() {
   const {triggerHaptic} = useHapticFeedback();
   const route = useRoute();
   const { projectId } = route.params as { projectId: string };
+
+    const projectTowers = useAppSelector((state) => state.projectStore.projectTowers);
   
-  const {data} = useGetProjectTowerByIdQuery({ projectId });
-  console.log(data);
+  
+  // const { projectTowerDetails, isLoading } = useProjectTowerById(projectId);
+  // console.log('projectTowerDetails', projectTowerDetails);
   
 
   const [dummyUser, setDummyUsers] = useState([
@@ -583,7 +585,7 @@ function PMHomePage() {
               ref={flatList}
               initialScrollIndex={index}
               style={{overflow: 'hidden'}}
-              data={data?.data || []}
+              data={projectTowers || []}
               keyExtractor={(item) => item._id.toString()}
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -592,7 +594,7 @@ function PMHomePage() {
               getItemLayout={getItemLayout}
               renderItem={({item, index}) => (
                 <Pressable
-                  onPress={() => navigation.navigate(routes.PROJECT_DETAIL,{projectId:item._id})}
+                  onPress={() => navigation.navigate(routes.PROJECT_DETAIL,{projectId:projectId,location_Id:item.Location_id})}
                   style={{
                     height: '83%',
                     width: responsiveScreenWidth(95),
@@ -639,7 +641,7 @@ function PMHomePage() {
                         radius={responsiveScreenWidth(6.5)}
                         color={color.primary}
                         bgColor={color.gray2}
-                        percentage={a}
+                        percentage={item?.targetprocessed}
                       />
                     </View>
                   </View>
@@ -657,7 +659,7 @@ function PMHomePage() {
                     }}>
                     {item?.tasks.map((item, index, array) => (
                       <View
-                        // key={item?._id}
+                        key={index}
                         style={{
                           flexBasis: array.length === 1 ? '100%' : '48%',
 
@@ -667,6 +669,7 @@ function PMHomePage() {
                           title={item.name}
                           currentStep={item.completed_subtasks_count}
                           totalSteps={item.subtaskdetails_count}
+                          totalPercentage={item?.taskprogress}
                         />
                       </View>
                     ))}
@@ -688,7 +691,7 @@ function PMHomePage() {
             top: responsiveScreenHeight(-0.5),
             marginBottom: responsiveScreenHeight(2),
           }}>
-          {data?.data.map((elem, cIndex) => {
+          {projectTowers.map((elem, cIndex) => {
             return (
               <TouchableOpacity
                 key={elem._id}
@@ -774,6 +777,7 @@ function PMHomePage() {
           data={dummyUser}
           contentContainerStyle={{paddingBottom: responsiveScreenHeight(3)}}
           showsVerticalScrollIndicator={false}
+          keyExtractor={(index) => index.toString()}
           renderItem={({item}: any) => {
             const animatedValue = new Animated.Value(0);
             const panResponder = PanResponder.create({

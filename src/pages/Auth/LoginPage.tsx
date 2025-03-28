@@ -25,12 +25,15 @@ import {
 import DraggableComponent from '../../component/DraggableComponent';
 import {SvgXml} from 'react-native-svg';
 import {loginArrow, logoSvg} from '../../svg';
-import {useAppDispatch} from '../../store/hooks';
-import {LoginById} from '../../reducers/UserSlice';
+import {useAppDispatch} from '../../hooks/hooks';
+import {loginById} from '../../redux/thunks/authThunk';
 import {style} from './ForgotPassword';
 function LoginPage() {
   const navigation: NavigationProp<ParamListBase> = useNavigation();
-  const [user, setUser] = useState({employeeId: '', password: ''});
+  const [user, setUser] = useState({
+    employeeId: 'SURYADEV0030',
+    password: '12345678',
+  });
   const [error, setError] = useState({employee: '', password: ''});
   const [active, setActive] = useState(false);
   const [slide, setSlide] = useState(false);
@@ -46,16 +49,33 @@ function LoginPage() {
   }, [user]);
   useEffect(() => {
     if (active && slide) {
-      dispatch(LoginById({...user})).then(e => {
-        setSlide(false);
-        if (!e.payload.success) {
-          if (e.payload.message.includes('yee')) {
-            setError({...error, employee: e.payload.message});
-          } else {
-            setError({...error, password: e.payload.message});
+      dispatch(loginById({...user}))
+        .then(e => {
+          setSlide(false);
+
+          const payload = e.payload as {
+            success?: boolean;
+            message?: string;
+            _id?: string;
+            name?: string;
+          };
+
+          if (!payload.success) {
+            if (payload.message?.includes('yee')) {
+              setError(prev => ({...prev, employee: payload.message || ''}));
+            } else {
+              setError(prev => ({...prev, password: payload.message || ''}));
+            }
           }
-        }
-      });
+        })
+        .catch(error => {
+          // Handle any dispatch errors
+          console.error('Login error:', error);
+          setError(prev => ({
+            ...prev,
+            password: 'An unexpected error occurred',
+          }));
+        });
     } else {
       setSlide(false);
       if (!user.employeeId && !user.password && !isFirst) {
@@ -64,16 +84,20 @@ function LoginPage() {
           employee: 'Employee ID is required',
         });
       } else if (!user.employeeId && !isFirst) {
-        setError({...error, employee: 'Employee ID is required'});
+        setError(prev => ({...prev, employee: 'Employee ID is required'}));
       } else if (!user.password && !isFirst) {
-        setError({...error, password: 'Password is required'});
+        setError(prev => ({...prev, password: 'Password is required'}));
       }
       setIsFirst(false);
     }
-    setTimeout(() => {
+
+    const timeoutId = setTimeout(() => {
       setError({employee: '', password: ''});
     }, 3000);
-  }, [slide]);
+
+    // Cleanup timeout to prevent memory leaks
+    return () => clearTimeout(timeoutId);
+  }, [slide, active, user, isFirst, dispatch]);
   return (
     <AuthWarper>
       <Text style={style.topText}>Building Trust!</Text>

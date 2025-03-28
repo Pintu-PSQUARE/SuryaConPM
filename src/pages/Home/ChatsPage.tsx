@@ -16,21 +16,21 @@ import {
   responsiveScreenWidth,
 } from 'react-native-responsive-dimensions';
 import {truncateText} from '../../../function';
-import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../hooks/hooks';
 import {socketDisconnect, Initialize, MessageStatus} from '../../socket';
 import {
   NavigationProp,
   ParamListBase,
   useNavigation,
 } from '@react-navigation/native';
-import {CurrentChat, GetChats} from '../../reducers/ChatSlice';
+import {CurrentChat, GetChats} from '../../redux/slice/ChatSlice';
 import {MessageObj} from '../../sql';
 import {
   AddMessage,
   GetMessages,
   MarkRead,
   UpdateStatus,
-} from '../../reducers/MessageSlice';
+} from '../../redux/slice/MessageSlice';
 import {style} from '../Auth/ForgotPassword';
 const Message = new MessageObj();
 
@@ -76,7 +76,7 @@ const ChatsPage = () => {
     const a = updatedChats.sort((a, b) => {
       const dateA = a.lastDate || a.createdAt;
       const dateB = b.lastDate || b.createdAt;
-      return new Date(dateB) - new Date(dateA);
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
     });
     return a;
   }, [chats, messages, user, dispatch]);
@@ -258,9 +258,9 @@ const ChatsPage = () => {
               placeholder="Search"
               placeholderTextColor={color.black60}
               // value={user.password}
-              onChangeText={e => {
-                // setUser({ ...user, password: e })
-              }}
+              // onChangeText={e => {
+              //   // setUser({ ...user, password: e })
+              // }}
             />
           </View>
           {!isGroup && (
@@ -484,7 +484,7 @@ const ChatsPage = () => {
                           marginBottom: responsiveScreenHeight(0.3),
                           textTransform: 'uppercase',
                         }}>
-                        {e?.lastDate && getDate(e.lastDate)}
+                        {e?.lastDate && getDate(e.lastDate.toString())}
                       </Text>
                       {e.unRead && e.unRead > 0 && (
                         <View

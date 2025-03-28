@@ -90,6 +90,13 @@ export const font = {
 };
 // export const apiUrl = "http://admin.suryacon.net/api/v1"
 export const apiUrl = 'http://192.168.29.189:3000/api/v1';
-export const ENDPOINT = 'http://192.168.29.191:8080';
+export const ENDPOINT = 'http://192.168.29.189:3000';
 export const TESTINGUR = 'https://www.suryacon.net/testing/api/v1'
 // export const ENDPOINT = "http://socket.suryacon.net"
+export const DEVSOCKET = 'https://www.suryacon.net'
+export const DEVBASEURL = 'https://www.suryacon.net/development/api/v1';
+
+
+
+
+export const STORAGE_NAME = "SUYACONSTORAGE";

@@ -5,8 +5,8 @@ import { responsiveScreenFontSize, responsiveScreenHeight, responsiveScreenWidth
 import { color, routes } from '../../config/Env'
 import { OtpInput } from '../../component'
 import { NavigationProp, ParamListBase, useNavigation, useRoute } from '@react-navigation/native'
-import { useAppDispatch } from '../../store/hooks'
-import { ForgotOtpVerification, LoginOtpVerify } from '../../reducers/UserSlice'
+import { useAppDispatch } from '../../hooks/hooks'
+import { ForgotOtpVerification, LoginOtpVerify } from '../../redux/slice/UserSlice'
 import { style } from './ForgotPassword'
 
 const OptVerification = () => {

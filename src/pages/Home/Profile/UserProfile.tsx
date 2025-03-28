@@ -19,7 +19,7 @@ import {
   ParamListBase,
   useNavigation,
 } from '@react-navigation/native';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppSelector} from '../../../hooks/hooks';
 import {requestCameraPermission} from '../../../../function';
 import {Shadow} from 'react-native-shadow-2';
 import {LinearGradient} from '../../../component';

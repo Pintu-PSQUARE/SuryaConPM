@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {AsyncThunkConfig} from '@reduxjs/toolkit/dist/createAsyncThunk';
-import {apiUrl} from '../config/Env';
-import {MessageObj} from '../sql';
-import {MessageStatus} from '../socket';
-import {serializer} from '../../metro.config';
+import {apiUrl} from '../../config/Env';
+import {MessageObj} from '../../sql';
+import {MessageStatus} from '../../socket';
 
+interface AsyncThunkConfig {
+  state: CounterState;
+  dispatch: any;
+  extra: any;
+  rejectValue: any;
+}
 const Message = new MessageObj();
 
 export interface Messages {
@@ -98,7 +102,7 @@ export const GetMessages = createAsyncThunk<
         );
       });
       const combinedMessages = AllMessages.sort(
-        (a, b) => new Date(a?.date) - new Date(b?.date),
+        (a, b) => new Date(a?.date).getTime() - new Date(b?.date).getTime(),
       );
       return {success: true, messages: combinedMessages};
     }

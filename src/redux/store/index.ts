@@ -1,13 +1,17 @@
-import { configureStore } from '@reduxjs/toolkit';
-import UserSlice from '../reducers/UserSlice';
-import ContactSlice from '../reducers/ContactSlice';
-import { baseApi } from '../api/util'; 
+import { configureStore } from "@reduxjs/toolkit";
+import UserSlice from "../slice/UserSlice";
+import ContactSlice from "../slice/ContactSlice";
+import ProjectSlice from "../slice/ProjectSlice";
+import ChatSlice from "../slice/ChatSlice";
+import { baseApi } from "../store/util"; 
 
 export const store = configureStore({
   reducer: {
     userStore: UserSlice,
     contactStore: ContactSlice,
-    [baseApi.reducerPath]: baseApi.reducer, 
+    projectStore: ProjectSlice,
+    chatStore: ChatSlice,
+    [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

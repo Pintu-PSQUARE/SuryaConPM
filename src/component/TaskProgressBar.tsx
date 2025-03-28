@@ -13,14 +13,16 @@ interface ProgressBarProps {
   title: string;
   currentStep: number;
   totalSteps: number;
+  totalPercentage: number;
 }
 
 const TaskProgressBar: React.FC<ProgressBarProps> = ({
   title,
   currentStep,
   totalSteps,
+  totalPercentage,
 }) => {
-  const progressPercentage = (currentStep / totalSteps) * 100;
+  // const progressPercentage = (currentStep / totalSteps) * 100;
 
   return (
     <Shadow
@@ -34,7 +36,7 @@ const TaskProgressBar: React.FC<ProgressBarProps> = ({
       <View style={styles.container}>
         <View style={styles.progressBar}>
           {/* Progress Bar Filled Section */}
-          <View style={[styles.filled, {width: `${progressPercentage}%`}]} />
+          <View style={[styles.filled, {width: `${Math.ceil(totalPercentage)}%`}]} />
 
           {/* Text and Step Information */}
           <View style={styles.textContainer}>

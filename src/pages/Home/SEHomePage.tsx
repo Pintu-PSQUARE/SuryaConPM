@@ -47,7 +47,7 @@ import {
   ParamListBase,
   useNavigation,
 } from '@react-navigation/native';
-import {useAppSelector} from '../../store/hooks';
+import {useAppSelector} from '../../hooks/hooks';
 import TaskProgressBar from '../../component/TaskProgressBar';
 import DraggableComponent from '../../component/DraggableComponent';
 import Svg, {Defs, LinearGradient, Rect, Stop, SvgXml} from 'react-native-svg';

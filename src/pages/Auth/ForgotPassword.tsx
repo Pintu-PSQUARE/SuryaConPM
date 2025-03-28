@@ -14,9 +14,9 @@ import {
   ParamListBase,
   useNavigation,
 } from '@react-navigation/native';
-import {useAppDispatch} from '../../store/hooks';
+import {useAppDispatch} from '../../hooks/hooks';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {ForgotPasswordOtp} from '../../reducers/UserSlice';
+import {ForgotPasswordOtp} from '../../redux/slice/UserSlice';
 
 export default function ForgotPassword() {
   const navigation: NavigationProp<ParamListBase> = useNavigation();

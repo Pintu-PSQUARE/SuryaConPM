@@ -1,10 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { AsyncThunkConfig } from "@reduxjs/toolkit/dist/createAsyncThunk"
-import { apiUrl } from '../config/Env'
+import { apiUrl } from '../../config/Env'
 export interface CounterState {
   contact: any[];
 }
-
+interface AsyncThunkConfig {
+  state: CounterState;
+  dispatch: any;
+  extra: any;
+  rejectValue: any;
+}
 const initialState: CounterState = {
     contact: [],
 }
